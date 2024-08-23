@@ -1,0 +1,91 @@
+name: iaito
+version: '5.9.4'
+website: https://www.radare.org/
+issues: https://github.com/radareorg/iaito/issues
+contact: https://github.com/radareorg/radare2#community
+source-code: https://github.com/radareorg/iaito-snap.git
+license: LGPL-3.0-only
+adopt-info: iaito
+confinement: classic
+grade: stable
+base: core24
+platforms:
+  amd64:
+    build-on: [amd64]
+    build-for: amd64
+  arm64:
+    build-on: [arm64]
+    build-for: arm64
+environment:
+  R2_PREFIX: $SNAP
+  PKG_CONFIG_PATH: $SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
+  LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib
+  PATH: $SNAP/bin:$PATH
+apps:
+  iaito:
+    common-id: org.radare.iaito.desktop
+    command: iaito
+    extensions: [kde-neon-6]
+  r2:
+    command: bin/r2
+  r2agent:
+    command: bin/r2agent
+  r2frida-compile:
+    command: bin/r2frida-compile
+  r2p:
+    command: bin/r2p
+  r2pm:
+    command: bin/r2pm
+  r2r:
+    command: bin/r2r
+  rabin2:
+    command: bin/rabin2
+  radare2:
+    command: bin/radare2
+  radiff2:
+    command: bin/radiff2
+  rafind2:
+    command: bin/rafind2
+  ragg2:
+    command: bin/ragg2
+  rahash2:
+    command: bin/rahash2
+  rarun2:
+    command: bin/rarun2
+  rasign2:
+    command: bin/rasign2
+  rasm2:
+    command: bin/rasm2
+  ravc2:
+    command: bin/ravc2
+  rax2:
+    command: bin/rax2
+  sleighc:
+    command: bin/sleighc
+  yara:
+    command: bin/yara
+  yarac:
+    command: bin/yarac
+parts:
+  radare2:
+    plugin: nil
+    stage-snaps: [radare2]
+  iaito:
+    plugin: qmake
+    source: https://github.com/radareorg/iaito.git
+    source-type: git
+    source-depth: 1
+    source-tag: $SNAPCRAFT_PROJECT_VERSION
+    source-subdir: src
+    build-snaps:
+      - kde-frameworks-6-core24-sdk
+      - kde-frameworks-6-core24
+  iaito-translations:
+    plugin: make
+    source: https://github.com/radareorg/iaito-translations.git
+    source-type: git
+    source-depth: 1
+    source-branch: master
+    make-parameters:
+      - install
+      - PREFIX=$CRAFT_PART_INSTALL
