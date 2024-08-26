@@ -82,6 +82,7 @@ parts:
     source-depth: 1
     source-tag: $SNAPCRAFT_PROJECT_VERSION
     source-subdir: src
+    qmake-project-file: Iaito.pro
     parse-info:
       - usr/share/metainfo/org.radare.iaito.metainfo.xml
     build-attributes:
