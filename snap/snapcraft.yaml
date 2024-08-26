@@ -8,7 +8,7 @@ license: LGPL-3.0-only
 adopt-info: iaito
 confinement: classic
 grade: stable
-base: core24
+base: core22
 platforms:
   amd64:
     build-on: [amd64]
@@ -16,60 +16,17 @@ platforms:
   arm64:
     build-on: [arm64]
     build-for: arm64
-environment:
-  R2_PREFIX: $SNAP
-  PKG_CONFIG_PATH: $SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}
-  LD_LIBRARY_PATH: ${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib
-  PATH: $SNAP/bin:$PATH
+slots:
+  session-dbus-interface:
+    interface: dbus
+    name: org.radare.iaito
+    bus: session
 apps:
   iaito:
     common-id: org.radare.iaito.desktop
     command: iaito
     extensions: [kde-neon-6]
-  r2:
-    command: bin/r2
-  r2agent:
-    command: bin/r2agent
-  r2frida-compile:
-    command: bin/r2frida-compile
-  r2p:
-    command: bin/r2p
-  r2pm:
-    command: bin/r2pm
-  r2r:
-    command: bin/r2r
-  rabin2:
-    command: bin/rabin2
-  radare2:
-    command: bin/radare2
-  radiff2:
-    command: bin/radiff2
-  rafind2:
-    command: bin/rafind2
-  ragg2:
-    command: bin/ragg2
-  rahash2:
-    command: bin/rahash2
-  rarun2:
-    command: bin/rarun2
-  rasign2:
-    command: bin/rasign2
-  rasm2:
-    command: bin/rasm2
-  ravc2:
-    command: bin/ravc2
-  rax2:
-    command: bin/rax2
-  sleighc:
-    command: bin/sleighc
-  yara:
-    command: bin/yara
-  yarac:
-    command: bin/yarac
 parts:
-  radare2:
-    plugin: nil
-    stage-snaps: [radare2]
   iaito:
     plugin: qmake
     source: https://github.com/radareorg/iaito.git
@@ -77,10 +34,19 @@ parts:
     source-depth: 1
     source-tag: $SNAPCRAFT_PROJECT_VERSION
     source-subdir: src
-    build-snaps:
-      - kde-frameworks-6-core24-sdk
-      - kde-frameworks-6-core24
+    parse-info:
+      - usr/share/metainfo/org.radare.iaito.metainfo.xml
+    prime:
+      - -usr/lib/*/qmake/*
+      - -usr/include/*
+      - -usr/share/ECM/*
+      - -usr/share/man/*
+      - -usr/bin/X11
+      - -usr/lib/gcc/$CRAFT_ARCH_TRIPLET_BUILD_FOR/6.0.0
+      - -usr/share/lintian
   iaito-translations:
+    after:
+      - iaito
     plugin: make
     source: https://github.com/radareorg/iaito-translations.git
     source-type: git
@@ -89,3 +55,16 @@ parts:
     make-parameters:
       - install
       - PREFIX=$CRAFT_PART_INSTALL
+  cleanup:
+    after:
+      - iaito
+    plugin: nil
+    build-snaps:
+      - core22
+      - kf6-core22
+      - qt-common-themes
+    override-prime: |
+      set -eux
+      for snap in "core22" "kf6-core22" "qt-common-themes"; do
+          cd "/snap/$snap/current" && find . -type f,l -exec rm -rf "${CRAFT_PRIME}/{}" \;
+      done
