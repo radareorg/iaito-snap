@@ -11,7 +11,7 @@ issues: https://github.com/radareorg/iaito/issues
 contact: https://github.com/radareorg/radare2#community
 source-code: https://github.com/radareorg/iaito-snap
 adopt-info: iaito
-confinement: classic
+confinement: devmode
 grade: stable
 base: core24
 platforms:
