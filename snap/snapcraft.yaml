@@ -68,14 +68,16 @@ apps:
     command: bin/yarac
 environment:
   R2_PREFIX: "$SNAP"
-  QTWEBENGINEPROCESS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/libexec/QtWebEngineProcess"
-  __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/etc/glvnd/egl_vendor.d:$SNAP/usr/share/glvnd/egl_vendor.d"
-  LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri"
-  LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:${LD_LIBRARY_PATH}"
-  PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
   XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share"
+  PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+  LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
+  LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
+  QTDIR: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6"
   QT_PLUGIN_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins"
+  QT_QPA_PLATFORM_PLUGIN_PATH: "$SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/platforms"
+  QT_QPA_PLATFORM: "wayland;xcb"
 package-repositories:
   - type: apt
     components:
@@ -126,65 +128,68 @@ parts:
       - qt6-base-dev
       - qt6-declarative-dev
       - qt6-svg-dev
-      - libglx-dev
-      - libgl-dev
-      - libglvnd-dev
-      - libxkbcommon-dev
     stage-packages:
       - graphviz
+      - fonts-agave
+      - fonts-anonymous-pro
+      - fonts-inconsolata
+      # Keyboard I/O
+      - libxkbcommon0
+      - xkb-data
+      # Theming
+      - fonts-ubuntu
+      - dmz-cursor-theme
+      - adwaita-icon-theme
+      - qt6-gtk-platformtheme
+      - shared-mime-info
+      # User Configaration
+      - locales-all
+      - xdg-user-dirs
+      # QT6
+      - qt6-wayland
       - libqt6core6t64
       - libqt6gui6t64
       - libqt6network6t64
       - libqt6widgets6
-      - libqt6svg6
+      - libqt6svg6 # also for loading icon themes which are svg
       - libqt6svgwidgets6
-      - libqt6waylandclient6
-      - ibus
-      - ibus-wayland
-      - fcitx5
-      - fcitx5-modules
-      - fcitx-mozc
-      - libxkbcommon0
+      # Other
+      - libx11-6
+      - libxcb1
+      - libgtk-3-common
+      - libgtk-3-0t64
+      - libglib2.0-bin
+      - libnvidia-egl-wayland1
+      - libglib2.0-0t64
+      - libglib2.0-data
+      - gsettings-desktop-schemas
     prime:
-      - "-usr/lib/*/cmake/*"
-      - "-usr/include/*"
-      - "-usr/share/applications/*"
-      - "-usr/share/doc/*"
-      - "-usr/share/docs/*"
-      - "-usr/share/ECM/*"
-      - "-usr/share/man/*"
-      - "-usr/share/pkgconfig"
+      - "-etc"
       - "-usr/bin/X11"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/samba"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libabsl_*"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libcolordprivate.so.2.0.5"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdrm_amdgpu.so.1.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdrm_intel.so.1.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdrm_nouveau.so.2.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libdrm_radeon.so.1.0.1"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libEGL_mesa.so.0.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libglapi.so.0.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libGLX_mesa.so.0.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libharfbuzz-gobject.so.0.60830.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicuio.so.74.2"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutest.so.74.2"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libicutu.so.74.2"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libLLVM-17.so.1"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpangoxft-1.0.so.0.5200.1"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpciaccess.so.0.11.1"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libpresage.so.1.1.1"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libQt6QuickWidgets.so.6.7.2"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libsensors.so.5.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libtinyxml.so.2.6.2"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libvulkan.so.1.3.275"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-dri2.so.0.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-dri3.so.0.1.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxcb-present.so.0.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXft.so.2.3.6"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libxshmfence.so.1.0.0"
-      - "-usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libXxf86vm.so.1.0.0"
+      - "-usr/bin/*qmake6" # Remove QT build files
+      - "-usr/lib/*/cmake/*"
+      - "-usr/lib/*/qt6/examples"
+      - "-usr/lib/X11"
+      - "-usr/lib/qt6" # Remove QT build files
+      - "-usr/lib/sasl2"
+      - "-usr/lib/systemd"
+      - "-usr/lib/udev"
+      - "-usr/include"
+      - "-usr/share/applications"
+      - "-usr/share/apport"
+      - "-usr/share/bash-completion"
+      - "-usr/share/bug"
+      - "-usr/share/dbus-1"
+      - "-usr/share/doc"
+      - "-usr/share/doc-base"
+      - "-usr/share/man"
+      - "-usr/share/menu"      
+      - "-usr/share/pkgconfig"
+      - "-usr/share/upstart"
       - "-var"
+    override-prime: |
+      craftctl default
+      sed -i -e "s,/usr,/snap/$SNAPCRAFT_PROJECT_NAME/current/usr," -e "s,/etc,/snap/$SNAPCRAFT_PROJECT_NAME/current/etc," "$CRAFT_PRIME"/usr/lib/*/qt6/qt6.conf
   iaito-translations:
     plugin: nil
     source: https://github.com/radareorg/iaito-translations.git
