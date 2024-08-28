@@ -190,6 +190,7 @@ parts:
     override-prime: |
       craftctl default
       sed -i -e "s,/usr,/snap/$SNAPCRAFT_PROJECT_NAME/current/usr," -e "s,/etc,/snap/$SNAPCRAFT_PROJECT_NAME/current/etc," "$CRAFT_PRIME"/usr/lib/*/qt6/qt6.conf
+      ln -s ../../../../../../share/icons/hicolor/scalable/apps/org.radare.iaito.svg "$CRAFT_PRIME"/usr/share/icons/hicolor/scalable/apps/org.radare.iaito.svg
   iaito-translations:
     plugin: nil
     source: https://github.com/radareorg/iaito-translations.git
