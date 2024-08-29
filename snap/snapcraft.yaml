@@ -78,15 +78,6 @@ environment:
   QT_PLUGIN_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins"
   QT_QPA_PLATFORM_PLUGIN_PATH: "$SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/platforms"
   QT_QPA_PLATFORM: "wayland;xcb"
-package-repositories:
-  - type: apt
-    components:
-      - main
-    suites:
-      - noble
-    key-id: 444DABCF3667D0283F894EDDE6D4736255751E5D
-    url: http://origin.archive.neon.kde.org/user
-    key-server: keyserver.ubuntu.com
 parts:
   radare2:
     plugin: nil
@@ -122,8 +113,9 @@ parts:
     build-attributes:
       - enable-patchelf
     build-environment:
-      - QT_SELECT: "6"
+      - PATH: "/usr/lib/qt6/bin:${PATH}"
     build-packages:
+      - pkgconf
       - libgraphviz-dev
       - qt6-base-dev
       - qt6-declarative-dev
@@ -168,6 +160,7 @@ parts:
       - "-usr/bin/X11"
       - "-usr/bin/*qmake6" # Remove QT build files
       - "-usr/lib/*/cmake/*"
+      - "-usr/lib/*/qt6/qt6.conf"
       - "-usr/lib/*/qt6/examples"
       - "-usr/lib/X11"
       - "-usr/lib/qt6" # Remove QT build files
@@ -189,7 +182,6 @@ parts:
       - "-var"
     override-prime: |
       craftctl default
-      sed -i -e "s,/usr,/snap/$SNAPCRAFT_PROJECT_NAME/current/usr," -e "s,/etc,/snap/$SNAPCRAFT_PROJECT_NAME/current/etc," "$CRAFT_PRIME"/usr/lib/*/qt6/qt6.conf
       ln -s ../../../../../../share/icons/hicolor/scalable/apps/org.radare.iaito.svg "$CRAFT_PRIME"/usr/share/icons/hicolor/scalable/apps/org.radare.iaito.svg
   iaito-translations:
     plugin: nil
@@ -198,9 +190,8 @@ parts:
     source-depth: 1
     source-branch: master
     build-environment:
-      - QT_SELECT: "6"
+      - PATH: "/usr/lib/qt6/bin:${PATH}"
     build-packages:
-      - qtchooser
       - qt6-l10n-tools
     build-attributes:
       - no-patchelf
