@@ -169,11 +169,15 @@ parts:
       # Remove QT QML (unused)
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/qml"
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/qml*"
+      # The libraries in .../qt6/plugins need to not be patched otherwise snapcraft may strip the QT metadata
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins"
       # Remove nondesired libary files
       - "-usr/lib/X11"
       - "-usr/lib/sasl2"
       - "-usr/lib/systemd"
       - "-usr/lib/udev"
+      # The libraries in .../dri need no-patchelf, so they come from the mesa-unpatched part
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
       # Remove nondesired metadata
       - "-usr/share/applications"
       - "-usr/share/apport"
@@ -199,3 +203,24 @@ parts:
     build-attributes:
       - no-patchelf
     override-build: make install PREFIX=$CRAFT_PART_INSTALL
+  mesa-no-patchelf:
+    plugin: nil
+    stage-packages:
+      - libgl1-mesa-dri
+    build-attributes:
+      - no-patchelf # Otherwise snapcraft may strip the build ID and cause the driver to crash
+    stage:
+      # Only the libraries in .../dri need to not be patched, the rest come from the mesa part
+      - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
+  qtplugins-no-patchelf:
+    plugin: nil
+    stage-packages:
+      - qt6-wayland
+      - libqt6gui6t64
+      - libqt6network6t64
+      - libqt6svg6
+    build-attributes:
+      - no-patchelf # Otherwise snapcraft may strip the QT metadata
+    stage:
+      # Only the libraries in .../qt6/plugins need to not be patched
+      - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins
