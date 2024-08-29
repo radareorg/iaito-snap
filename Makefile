@@ -4,4 +4,5 @@ snap:
 	snapcraft -v
 
 clean:
-	rm -f *.snap
+	snapcraft clean -v
+	rm -vf *.snap
