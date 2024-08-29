@@ -71,13 +71,11 @@ environment:
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
   XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-  LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/pulseaudio${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+  LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
   LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
-  QTDIR: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6"
   QT_PLUGIN_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins"
-  QT_QPA_PLATFORM_PLUGIN_PATH: "$SNAP/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/platforms"
-  QT_QPA_PLATFORM: "wayland;xcb"
+  QT_QPA_PLATFORM_PLUGIN_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/qt6/plugins/platforms"
 parts:
   radare2:
     plugin: nil
@@ -85,13 +83,13 @@ parts:
       - no-patchelf
     stage-snaps:
       - radare2
+    stage:
+      - "-meta.radare2"
+      - "-share/sbom"
     override-stage: |
       craftctl default
       sed -i "s,$CRAFT_STAGE/snap/radare2/current,$CRAFT_STAGE," "$CRAFT_STAGE/lib/pkgconfig/"*.pc
       sed -i "s,/snap/radare2/current,$CRAFT_STAGE," "$CRAFT_STAGE/include/libr/r_userconf.h" "$CRAFT_STAGE/lib/libyara.la"
-    prime:
-      - "-meta.radare2"
-      - "-share/sbom"
     override-prime: |
       craftctl default
       sed -i "s,$CRAFT_STAGE,/snap/$SNAPCRAFT_PROJECT_NAME/current," "$CRAFT_PRIME/lib/pkgconfig/"*.pc "$CRAFT_PRIME/include/libr/r_userconf.h" "$CRAFT_PRIME/lib/libyara.la"
@@ -120,19 +118,30 @@ parts:
       - qt6-base-dev
       - qt6-declarative-dev
       - qt6-svg-dev
+    override-build: |
+      craftctl default
+      sed -i -e "s,Icon=\(.*\)\$,Icon=/share/icons/hicolor/scalable/apps/\1.svg," "$CRAFT_PART_INSTALL"/share/applications/org.radare.iaito.desktop
     stage-packages:
       - graphviz
       - fonts-agave
       - fonts-anonymous-pro
       - fonts-inconsolata
-      # Keyboard I/O
-      - libxkbcommon0
+      # X11 + wayland
       - xkb-data
+      - libx11-6
+      - libxcb1
+      - libxkbcommon0
+      - libnvidia-egl-wayland1
       # Theming
       - fonts-ubuntu
       - dmz-cursor-theme
       - adwaita-icon-theme
       - qt6-gtk-platformtheme
+      - libgtk-3-common
+      - libgtk-3-0t64
+      - libglib2.0-0t64
+      - libglib2.0-data
+      - gsettings-desktop-schemas
       - shared-mime-info
       # User Configaration
       - locales-all
@@ -145,29 +154,27 @@ parts:
       - libqt6widgets6
       - libqt6svg6 # also for loading icon themes which are svg
       - libqt6svgwidgets6
-      # Other
-      - libx11-6
-      - libxcb1
-      - libgtk-3-common
-      - libgtk-3-0t64
-      - libglib2.0-bin
-      - libnvidia-egl-wayland1
-      - libglib2.0-0t64
-      - libglib2.0-data
-      - gsettings-desktop-schemas
     prime:
+      # Remove nondesired base paths
       - "-etc"
       - "-usr/bin/X11"
-      - "-usr/bin/*qmake6" # Remove QT build files
-      - "-usr/lib/*/cmake/*"
-      - "-usr/lib/*/qt6/qt6.conf"
-      - "-usr/lib/*/qt6/examples"
+      - "-usr/include"
+      - "-usr/libexec"
+      - "-var"
+      # Remove QT build and examples files
+      - "-usr/bin/*qmake6"
+      - "-usr/lib/qt6"
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/qt6.conf"
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/examples"
+      # Remove QT QML (unused)
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/qml"
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/qml*"
+      # Remove nondesired libary files
       - "-usr/lib/X11"
-      - "-usr/lib/qt6" # Remove QT build files
       - "-usr/lib/sasl2"
       - "-usr/lib/systemd"
       - "-usr/lib/udev"
-      - "-usr/include"
+      # Remove nondesired metadata
       - "-usr/share/applications"
       - "-usr/share/apport"
       - "-usr/share/bash-completion"
@@ -179,10 +186,6 @@ parts:
       - "-usr/share/menu"      
       - "-usr/share/pkgconfig"
       - "-usr/share/upstart"
-      - "-var"
-    override-prime: |
-      craftctl default
-      ln -s ../../../../../../share/icons/hicolor/scalable/apps/org.radare.iaito.svg "$CRAFT_PRIME"/usr/share/icons/hicolor/scalable/apps/org.radare.iaito.svg
   iaito-translations:
     plugin: nil
     source: https://github.com/radareorg/iaito-translations.git
