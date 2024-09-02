@@ -102,7 +102,7 @@ parts:
     source-tag: $SNAPCRAFT_PROJECT_VERSION
     qmake-project-file: src/Iaito.pro
     qmake-parameters:
-      - PREFIX=/    
+      - PREFIX=/
       - -config
       - release
     parse-info:
@@ -122,9 +122,6 @@ parts:
       sed -i -e "s,Icon=\(.*\)\$,Icon=/share/icons/hicolor/scalable/apps/\1.svg," "$CRAFT_PART_INSTALL"/share/applications/org.radare.iaito.desktop
     stage-packages:
       - graphviz
-      - fonts-agave
-      - fonts-anonymous-pro
-      - fonts-inconsolata
       # X11 + wayland
       - xkb-data
       - libx11-6
@@ -141,7 +138,6 @@ parts:
       - libglib2.0-0t64
       - libglib2.0-data
       - gsettings-desktop-schemas
-      - shared-mime-info
       # User Configaration
       - locales-all
       - xdg-user-dirs
@@ -186,7 +182,7 @@ parts:
       - "-usr/share/doc"
       - "-usr/share/doc-base"
       - "-usr/share/man"
-      - "-usr/share/menu"      
+      - "-usr/share/menu"
       - "-usr/share/pkgconfig"
       - "-usr/share/upstart"
   iaito-translations:
@@ -202,27 +198,21 @@ parts:
     build-attributes:
       - no-patchelf
     override-build: make install PREFIX=$CRAFT_PART_INSTALL
-  mesa-no-patchelf:
-    plugin: nil
-    stage-packages:
-      - libgl1-mesa-dri
-    build-attributes:
-      - no-patchelf # Otherwise snapcraft may strip the build ID and cause the driver to crash
-    stage:
-      # Only the libraries in .../dri need to not be patched, the rest come from the mesa part
-      - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
-  qtplugins-no-patchelf:
+  extra-no-patchelf:
     plugin: nil
     stage-packages:
       - qt6-wayland
       - libqt6gui6t64
       - libqt6network6t64
       - libqt6svg6
+      - libgl1-mesa-dri
     build-attributes:
-      - no-patchelf # Otherwise snapcraft may strip the QT metadata
+      - no-patchelf
     stage:
-      # Only the libraries in .../qt6/plugins need to not be patched
+      # The QT plugins need to not be patched since striping the QT metadata make them not loadeable
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins
+      # The mesa drivers need to not be patched since striping the build ID cause the driver to crash
+      - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
   qtconf:
     plugin: nil
     override-build: |
