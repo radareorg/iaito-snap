@@ -26,6 +26,11 @@ apps:
     common-id: org.radare.iaito.desktop
     command: bin/iaito
     desktop: share/applications/org.radare.iaito.desktop
+    environment:
+      LD_LIBRARY_PATH: "${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy"
+      LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
+      __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
+      XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   r2:
     command: bin/r2
   r2agent:
@@ -70,11 +75,7 @@ environment:
   R2_PREFIX: "$SNAP"
   SLEIGHHOME: "$SNAP/lib/radare2/last/r2ghidra_sleigh"
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
-  XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
-  LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
-  __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
-  LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
 parts:
   radare2:
     plugin: nil
