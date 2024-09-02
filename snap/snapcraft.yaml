@@ -68,21 +68,123 @@ environment:
   __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS: "$SNAP/usr/share/egl/egl_external_platform.d${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+:$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS}:/etc/egl/egl_external_platform.d:/usr/share/egl/egl_external_platform.d"
 parts:
   radare2:
-    plugin: nil
+    plugin: autotools
+    source: https://github.com/radareorg/radare2.git
+    source-type: git
+    source-depth: 1
+    source-tag: '5.9.4'
     build-attributes:
-      - no-patchelf
-    stage-snaps:
-      - radare2
-    stage:
-      - "-meta.radare2"
-      - "-share/sbom"
-    override-stage: |
-      craftctl default
-      sed -i "s,$CRAFT_STAGE/snap/radare2/current,$CRAFT_STAGE," "$CRAFT_STAGE/lib/pkgconfig/"*.pc
-      sed -i "s,/snap/radare2/current,$CRAFT_STAGE," "$CRAFT_STAGE/include/libr/r_userconf.h" "$CRAFT_STAGE/lib/libyara.la"
+      - enable-patchelf
+    build-environment:
+      - CFLAGS: "${CFLAGS:+} -O3"
+    autotools-configure-parameters:
+      - --prefix=/
+      - --with-checks-level=0
     override-prime: |
       craftctl default
-      sed -i "s,$CRAFT_STAGE,/snap/$SNAPCRAFT_PROJECT_NAME/current," "$CRAFT_PRIME/lib/pkgconfig/"*.pc "$CRAFT_PRIME/include/libr/r_userconf.h" "$CRAFT_PRIME/lib/libyara.la"
+      sed -i "s,$CRAFT_STAGE,/snap/$SNAPCRAFT_PROJECT_NAME/current," "$CRAFT_PRIME/lib/pkgconfig/"*.pc "$CRAFT_PRIME/include/libr/r_userconf.h"
+  r2ghidra:
+    after:
+      - radare2
+    plugin: autotools
+    source: https://github.com/radareorg/r2ghidra.git
+    source-type: git
+    source-depth: 1
+    source-tag: '5.9.4'
+    build-attributes:
+      - enable-patchelf
+    build-environment:
+      - CFLAGS: "${CFLAGS:+} -O3"
+      - LD_LIBRARY_PATH: "$CRAFT_STAGE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    override-pull: |
+      craftctl default
+      ./preconfigure
+    autotools-configure-parameters:
+      - --prefix=/
+      - --with-checks-level=0
+  r2frida:
+    after:
+      - radare2
+    plugin: autotools
+    source: https://github.com/nowsecure/r2frida.git
+    source-type: git
+    source-depth: 1
+    source-tag: '5.9.4'
+    build-attributes:
+      - enable-patchelf
+    build-environment:
+      - CFLAGS: "${CFLAGS:+} -O3"
+      - LD_LIBRARY_PATH: "$CRAFT_STAGE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    autotools-configure-parameters:
+      - --prefix=/
+      - --with-checks-level=0
+  meson-deps:
+    plugin: nil
+    build-packages:
+      - python3-pip
+      - ninja-build
+    override-build: python3 -m pip install meson~=0.64.1
+    prime:
+      - -*
+  r2dec:
+    after:
+      - radare2
+      - meson-deps
+    plugin: meson
+    source: https://github.com/wargio/r2dec-js.git
+    source-type: git
+    source-depth: 1
+    source-tag: '5.9.2'
+    build-attributes:
+      - enable-patchelf
+    build-environment:
+      - CFLAGS: "${CFLAGS:+} -O3"
+      # Fix meson radare paths detection
+      - R2_LIBDIR: "$CRAFT_STAGE/lib"
+      - R2_INCDIR: "$CRAFT_STAGE/include/libr"
+      - R2_LIBR_PLUGINS: "/lib/radare2/$SNAPCRAFT_PROJECT_VERSION"
+    override-build: |
+      meson --prefix / --libdir lib -Dr2_libdir="$R2_LIBDIR" -Dr2_incdir="$R2_INCDIR" -Dr2_plugdir="$R2_LIBR_PLUGINS" -Djsc_folder="$CRAFT_PART_SRC" "$CRAFT_PART_SRC/p"
+      ninja
+      DESTDIR="$CRAFT_PART_INSTALL" ninja install
+  yara:
+    after:
+      - radare2
+    plugin: autotools
+    source: https://github.com/VirusTotal/yara.git
+    source-type: git
+    source-depth: 1
+    source-tag: 'v4.5.1'
+    build-attributes:
+      - enable-patchelf
+    build-environment:
+      - CFLAGS: "${CFLAGS:+} -O3"
+      - LD_LIBRARY_PATH: "$CRAFT_STAGE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    override-pull: |
+      craftctl default
+      ./bootstrap.sh
+    autotools-configure-parameters:
+      - --prefix=/
+    override-prime: |
+      craftctl default
+      sed -i "s,$CRAFT_STAGE,/snap/$SNAPCRAFT_PROJECT_NAME/current," "$CRAFT_PRIME/lib/pkgconfig/"*.pc "$CRAFT_PRIME/lib/"*.la
+  r2yara:
+    after:
+      - radare2
+      - yara
+    plugin: autotools
+    source: https://github.com/radareorg/r2yara.git
+    source-type: git
+    source-depth: 1
+    source-tag: '1.3.0'
+    build-attributes:
+      - enable-patchelf
+    build-environment:
+      - CFLAGS: "${CFLAGS:+} -O3"
+      - LD_LIBRARY_PATH: "$CRAFT_STAGE/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+    autotools-configure-parameters:
+      - --prefix=/
+      - --with-checks-level=0
   iaito:
     after:
       - radare2
