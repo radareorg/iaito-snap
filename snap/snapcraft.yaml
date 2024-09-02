@@ -70,7 +70,7 @@ environment:
   R2_PREFIX: "$SNAP"
   SLEIGHHOME: "$SNAP/lib/radare2/last"
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
-  XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share"
+  XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
   LD_LIBRARY_PATH: "$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
   __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
@@ -129,18 +129,7 @@ parts:
       - libxkbcommon0
       - libnvidia-egl-wayland1
       # Theming
-      - fonts-ubuntu
-      - dmz-cursor-theme
-      - adwaita-icon-theme
-      - qt6-gtk-platformtheme
-      - libgtk-3-common
-      - libgtk-3-0t64
-      - libglib2.0-0t64
-      - libglib2.0-data
-      - gsettings-desktop-schemas
-      # User Configaration
-      - locales-all
-      - xdg-user-dirs
+      - qt6-xdgdesktopportal-platformtheme
       # QT6
       - qt6-wayland
       - libqt6core6t64
@@ -154,31 +143,17 @@ parts:
       - "-etc"
       - "-usr/bin/X11"
       - "-usr/include"
-      - "-usr/libexec"
-      - "-var"
-      # Remove QT build and examples files
-      - "-usr/bin/*qmake6"
-      - "-usr/lib/qt6"
-      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/qt6.conf"
-      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/examples"
-      # Remove QT QML (unused)
-      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/qml"
-      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/qml*"
       # The libraries in .../qt6/plugins need to not be patched otherwise snapcraft may strip the QT metadata
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins"
       # Remove nondesired libary files
       - "-usr/lib/X11"
       - "-usr/lib/sasl2"
-      - "-usr/lib/systemd"
       - "-usr/lib/udev"
       # The libraries in .../dri need no-patchelf, so they come from the mesa-unpatched part
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
       # Remove nondesired metadata
-      - "-usr/share/applications"
       - "-usr/share/apport"
-      - "-usr/share/bash-completion"
       - "-usr/share/bug"
-      - "-usr/share/dbus-1"
       - "-usr/share/doc"
       - "-usr/share/doc-base"
       - "-usr/share/man"
