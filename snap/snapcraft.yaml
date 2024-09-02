@@ -68,7 +68,7 @@ apps:
     command: bin/yarac
 environment:
   R2_PREFIX: "$SNAP"
-  SLEIGHHOME: "$SNAP/lib/radare2/last"
+  SLEIGHHOME: "$SNAP/lib/radare2/last/r2ghidra_sleigh"
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
   XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
