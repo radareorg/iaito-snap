@@ -9,5 +9,5 @@ This repository contains the recipie to build the snap version of [iaito](https:
 Currently is only as alpha, to install this alpha version run:
 
 ```sh
-sudo snap install iaito --edge --devmode
+sudo snap install iaito --edge --classic
 ```
