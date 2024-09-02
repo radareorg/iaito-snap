@@ -147,7 +147,7 @@ parts:
       # The libraries in .../qt6/plugins need to not be patched otherwise snapcraft may strip the QT metadata
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins"
       # Remove nondesired library files
-      - "-usr/lib/X11"   # already empty
+      - "-usr/lib/X11" # already empty
       - "-usr/lib/sasl2" # already empty
       - "-usr/lib/udev"
       # The libraries in .../dri need no-patchelf, so they come from the mesa-unpatched part
