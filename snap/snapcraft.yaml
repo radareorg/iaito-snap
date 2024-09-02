@@ -129,7 +129,8 @@ parts:
       - libxkbcommon0
       - libnvidia-egl-wayland1
       # Theming
-      - qt6-xdgdesktopportal-platformtheme
+      # qt6-xdgdesktopportal-platformtheme # added in extra-no-patchelf
+      - libqt6dbus6t64
       # QT6
       - qt6-wayland
       - libqt6core6t64
@@ -177,6 +178,7 @@ parts:
     plugin: nil
     stage-packages:
       - qt6-wayland
+      - qt6-xdgdesktopportal-platformtheme
       - libqt6gui6t64
       - libqt6network6t64
       - libqt6svg6
