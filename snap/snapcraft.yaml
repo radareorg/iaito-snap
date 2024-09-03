@@ -72,6 +72,7 @@ environment:
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
   XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+  LD_LIBRARY_PATH: "${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib"
   LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
   __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
 parts:
