@@ -12,6 +12,7 @@ contact: https://github.com/radareorg/radare2#community
 source-code: https://github.com/radareorg/iaito-snap
 adopt-info: iaito
 confinement: classic
+compression: lzo
 grade: stable
 base: core24
 platforms:
