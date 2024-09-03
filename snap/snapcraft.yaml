@@ -71,12 +71,12 @@ environment:
   R2_PREFIX: "$SNAP"
   SLEIGHHOME: "$SNAP/lib/radare2/last/r2ghidra_sleigh"
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
-  XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
+  XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}:/usr/local/share:/usr/share"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
   LD_LIBRARY_PATH: "${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib"
   LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
-  __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
-  __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS: "$SNAP/usr/share/egl/egl_external_platform.d"
+  __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d${__EGL_VENDOR_LIBRARY_DIRS:+:$__EGL_VENDOR_LIBRARY_DIRS}:/etc/glvnd/egl_vendor.d:/usr/share/glvnd/egl_vendor.d"
+  __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS: "$SNAP/usr/share/egl/egl_external_platform.d${__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS:+:$__EGL_EXTERNAL_PLATFORM_CONFIG_DIRS}:/etc/egl/egl_external_platform.d:/usr/share/egl/egl_external_platform.d"
 parts:
   radare2:
     plugin: nil
@@ -129,6 +129,7 @@ parts:
       - libx11-6
       - libxcb1
       - libxkbcommon0
+      - libglvnd0
       - libnvidia-egl-wayland1
       # Theming
       # qt6-xdgdesktopportal-platformtheme # added in manual-patchelf
@@ -155,6 +156,9 @@ parts:
       - "-usr/lib/udev"
       # The libraries in .../dri will be primed in manual-patchelf
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
+      # The JSON needs to be modified on prime will do in manual-patchelf
+      - "-usr/share/egl/egl_external_platform.d"
+      - "-usr/share/glvnd/egl_vendor.d"
       # Remove nondesired metadata
       - "-usr/share/apport"
       - "-usr/share/bug"
@@ -187,21 +191,29 @@ parts:
       - no-patchelf
     build-packages:
       - patchelf
+      - jq
     stage-packages:
       - qt6-wayland
       - qt6-xdgdesktopportal-platformtheme
       - libqt6gui6t64
       - libqt6network6t64
       - libqt6svg6
+      - libnvidia-egl-wayland1
       - libgl1-mesa-dri
     stage:
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
+      - usr/share/glvnd/egl_vendor.d
+      - usr/share/egl/egl_external_platform.d
     override-prime: |
       craftctl default
       LIBRARY_PATH="/snap/core24/current/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}"
       patchelf --force-rpath --set-rpath "\$ORIGIN/../..:\$ORIGIN/../../..:\$ORIGIN/../../../libproxy:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/"*/*.so
       patchelf --force-rpath --set-rpath "\$ORIGIN/..:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri/"*.so
+      for json in "$CRAFT_PRIME/usr/share/glvnd/egl_vendor.d/"*.json "$CRAFT_PRIME/usr/share/egl/egl_external_platform.d/"*.json; do
+        jq '.ICD.library_path=("'"../../../lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/"'"+.ICD.library_path)' "$json" > "$json".new
+        mv "$json".new "$json"
+      done
   qtconf:
     plugin: nil
     override-build: |
