@@ -75,6 +75,7 @@ environment:
   LD_LIBRARY_PATH: "${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib"
   LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
   __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
+  __EGL_EXTERNAL_PLATFORM_CONFIG_DIRS: "$SNAP/usr/share/egl/egl_external_platform.d"
 parts:
   radare2:
     plugin: nil
