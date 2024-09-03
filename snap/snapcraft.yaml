@@ -26,11 +26,6 @@ apps:
     common-id: org.radare.iaito.desktop
     command: bin/iaito
     desktop: share/applications/org.radare.iaito.desktop
-    environment:
-      LD_LIBRARY_PATH: "${SNAP_LIBRARY_PATH}${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}:$SNAP/lib:$SNAP/usr/lib:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR:$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/libproxy"
-      LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
-      __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
-      XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   r2:
     command: bin/r2
   r2agent:
@@ -75,7 +70,10 @@ environment:
   R2_PREFIX: "$SNAP"
   SLEIGHHOME: "$SNAP/lib/radare2/last/r2ghidra_sleigh"
   PATH: "$SNAP/bin:$SNAP/usr/bin:${PATH}"
+  XDG_DATA_DIRS: "$SNAP/share:$SNAP/usr/share:/usr/local/share:/usr/share${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
   PKG_CONFIG_PATH: "$SNAP/lib/pkgconfig${PKG_CONFIG_PATH:+:$PKG_CONFIG_PATH}"
+  LIBGL_DRIVERS_PATH: "$SNAP/usr/lib/$CRAFT_ARCH_TRIPLET_BUILD_FOR/dri${LIBGL_DRIVERS_PATH:+:$LIBGL_DRIVERS_PATH}"
+  __EGL_VENDOR_LIBRARY_DIRS: "$SNAP/usr/share/glvnd/egl_vendor.d"
 parts:
   radare2:
     plugin: nil
@@ -130,7 +128,7 @@ parts:
       - libxkbcommon0
       - libnvidia-egl-wayland1
       # Theming
-      # qt6-xdgdesktopportal-platformtheme # added in extra-no-patchelf
+      # qt6-xdgdesktopportal-platformtheme # added in manual-patchelf
       - libqt6dbus6t64
       # QT6
       - qt6-wayland
@@ -145,13 +143,13 @@ parts:
       - "-etc"
       - "-usr/bin/X11"
       - "-usr/include"
-      # The libraries in .../qt6/plugins need to not be patched otherwise snapcraft may strip the QT metadata
+      # The libraries in .../qt6/plugins will be primed in manual-patchelf
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins"
       # Remove nondesired library files
       - "-usr/lib/X11" # already empty
       - "-usr/lib/sasl2" # already empty
       - "-usr/lib/udev"
-      # The libraries in .../dri need no-patchelf, so they come from the mesa-unpatched part
+      # The libraries in .../dri will be primed in manual-patchelf
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
       # Remove nondesired metadata
       - "-usr/share/apport"
@@ -175,8 +173,15 @@ parts:
     build-attributes:
       - no-patchelf
     override-build: make install PREFIX=$CRAFT_PART_INSTALL
-  extra-no-patchelf:
+  manual-patchelf:
+    # QT plugins and Mesa drivers need to be patched manually
+    #  snapcraft automatic patchelf strips the QT metadata and Mesa BuildID
+    #  not allowing them to load or crash
     plugin: nil
+    build-attributes:
+      - no-patchelf
+    build-packages:
+      - patchelf
     stage-packages:
       - qt6-wayland
       - qt6-xdgdesktopportal-platformtheme
@@ -184,13 +189,14 @@ parts:
       - libqt6network6t64
       - libqt6svg6
       - libgl1-mesa-dri
-    build-attributes:
-      - no-patchelf
     stage:
-      # The QT plugins need to not be patched since striping the QT metadata make them not loadeable
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins
-      # The mesa drivers need to not be patched since striping the build ID cause the driver to crash
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
+    override-prime: |
+      craftctl default
+      LIBRARY_PATH="/snap/core24/current/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}"
+      patchelf --force-rpath --set-rpath "\$ORIGIN/../..:\$ORIGIN/../../..:\$ORIGIN/../../../libproxy:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/"*/*.so
+      patchelf --force-rpath --set-rpath "\$ORIGIN/..:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri/"*.so
   qtconf:
     plugin: nil
     override-build: |
