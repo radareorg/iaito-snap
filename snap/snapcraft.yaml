@@ -150,6 +150,7 @@ parts:
       # Remove nondesired library files
       - "-usr/lib/X11" # already empty
       - "-usr/lib/sasl2" # already empty
+      - "-lib/udev"
       - "-usr/lib/udev"
       # The libraries in .../dri will be primed in manual-patchelf
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
@@ -158,6 +159,7 @@ parts:
       - "-usr/share/bug"
       - "-usr/share/doc"
       - "-usr/share/doc-base"
+      - "-usr/share/lintian"
       - "-usr/share/man"
       - "-usr/share/menu"
       - "-usr/share/pkgconfig"
