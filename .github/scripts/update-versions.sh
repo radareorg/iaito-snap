@@ -12,4 +12,4 @@ getLatestReleaseTag() {
 IAITO_VERSION=$(getLatestReleaseTag radareorg/iaito)
 
 echo "Updating versions in snap/snapcraft.yaml..." > /dev/stderr
-yq eval -i '.version=strenv(IAITO_VERSION)' snap/snapcraft.yaml
+yq eval -i '.parts.iaito.source-tag=strenv(IAITO_VERSION)' snap/snapcraft.yaml
