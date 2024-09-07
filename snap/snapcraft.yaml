@@ -1,6 +1,7 @@
 name: iaito
 adopt-info: iaito
 confinement: classic
+compression: lzo
 grade: stable
 base: core24
 platforms:
