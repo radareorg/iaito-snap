@@ -13,11 +13,8 @@ jobs:
       # added or changed files to the repository.
       contents: write
 
-    outputs:
-      changes_detected: ${{ steps.commit.outputs.changes_detected }}
-
     steps:
-      # Install dependencies
+      # Install version checker dependencies
       - name: Install required dependencies
         run: sudo snap install yq
 
@@ -42,3 +39,25 @@ jobs:
           #commit_user_name: 'github-actions[bot]'
           #commit_user_email: '41898282+github-actions[bot]@users.noreply.github.com'
           commit_author: 'github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>'
+
+      # Try to autopromote old builds
+      - name: Install snapcraft
+        if: steps.commit.outputs.changes_detected == 'false'
+        run: sudo snap install snapcraft --channel=8.x/stable --classic
+
+      # Check latest snap revision at edge channel for the slowest building channel (arm64)
+      - name: Check latest snapcraft build revision
+        if: steps.commit.outputs.changes_detected == 'false'
+        id: snap
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+        run: snapcraft list-revisions iaito --arch arm64 | awk 'NR==2{print "channels="$5}' >> $GITHUB_OUTPUT
+
+      # Automatically promote to stable only if not already and no new build has been started
+      - name: Promote Snap to stable if not yet promoted
+        if: steps.commit.outputs.changes_detected == 'false' && steps.snap.outputs.channels == 'latest/edge*'
+        env:
+          SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
+          # Workaround for https://github.com/snapcore/snapcraft/issues/4439
+          SNAPCRAFT_HAS_TTY: "true"
+        run: yes | snapcraft promote iaito --from-channel edge --to-channel stable
