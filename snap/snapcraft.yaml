@@ -17,9 +17,9 @@ platforms:
   riscv64:
     build-on: [riscv64]
     build-for: riscv64
-  # s390x:
-  #   build-on: [s390x]
-  #   build-for: s390x
+    # s390x:
+    #   build-on: [s390x]
+    #   build-for: s390x
 apps:
   iaito:
     command: bin/iaito
