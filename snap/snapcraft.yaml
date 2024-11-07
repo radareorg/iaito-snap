@@ -14,12 +14,12 @@ platforms:
   # ppc64el:
   #   build-on: [ppc64el]
   #   build-for: ppc64el
-  riscv64:
-    build-on: [riscv64]
-    build-for: riscv64
-    # s390x:
-    #   build-on: [s390x]
-    #   build-for: s390x
+  # riscv64:
+  #   build-on: [riscv64]
+  #   build-for: riscv64
+  # s390x:
+  #   build-on: [s390x]
+  #   build-for: s390x
 apps:
   iaito:
     command: bin/iaito
