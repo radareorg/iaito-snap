@@ -16,7 +16,9 @@ jobs:
     steps:
       # Install version checker dependencies
       - name: Install required dependencies
-        run: sudo snap install yq
+        run: |
+          curl -Ls https://github.com/mikefarah/yq/releases/latest/download/yq_linux_amd64.tar.gz | tar -xzC /tmp
+          sudo cp -v /tmp/yq_linux_* /usr/local/bin/yq
 
       # Perform the checkout of the main branch
       - name: Checkout
