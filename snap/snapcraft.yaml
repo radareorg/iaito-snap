@@ -172,7 +172,7 @@ parts:
     source: https://github.com/radareorg/iaito-translations.git
     source-type: git
     source-depth: 1
-    source-branch: master
+    source-tag: '20221114'
     build-environment:
       - PATH: "/usr/lib/qt6/bin:${PATH}"
     build-packages:
