@@ -199,6 +199,7 @@ parts:
       - libqt6svg6
       - libnvidia-egl-wayland1
       - libgl1-mesa-dri
+      - mesa-libgallium
     stage:
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
