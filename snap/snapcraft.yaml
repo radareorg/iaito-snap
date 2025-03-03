@@ -154,6 +154,7 @@ parts:
       - "-usr/lib/udev"
       # The libraries in .../dri will be primed in manual-patchelf
       - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri"
+      - "-usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/libgallium-*.so"
       # The JSON needs to be modified on prime will do in manual-patchelf
       - "-usr/share/egl/egl_external_platform.d"
       - "-usr/share/glvnd/egl_vendor.d"
@@ -201,6 +202,7 @@ parts:
     stage:
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins
       - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri
+      - usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/libgallium-*.so
       - usr/share/glvnd/egl_vendor.d
       - usr/share/egl/egl_external_platform.d
     override-prime: |
@@ -208,6 +210,7 @@ parts:
       LIBRARY_PATH="/snap/core24/current/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}"
       patchelf --force-rpath --set-rpath "\$ORIGIN/../..:\$ORIGIN/../../..:\$ORIGIN/../../../libproxy:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/qt6/plugins/"*/*.so
       patchelf --force-rpath --set-rpath "\$ORIGIN/..:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/dri/"*.so
+      patchelf --force-rpath --set-rpath "\$ORIGIN:$LIBRARY_PATH" "$CRAFT_PRIME/usr/lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/"libgallium-*.so
       for json in "$CRAFT_PRIME/usr/share/glvnd/egl_vendor.d/"*.json "$CRAFT_PRIME/usr/share/egl/egl_external_platform.d/"*.json; do
         jq '.ICD.library_path=("'"../../../lib/${CRAFT_ARCH_TRIPLET_BUILD_FOR}/"'"+.ICD.library_path)' "$json" > "$json".new
         mv "$json".new "$json"
