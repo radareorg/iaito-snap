@@ -37,6 +37,8 @@ apps:
     command: bin/r2pm
   r2r:
     command: bin/r2r
+  r2sdb:
+    command: bin/r2sdb
   rabin2:
     command: bin/rabin2
   radare2:
@@ -49,6 +51,8 @@ apps:
     command: bin/ragg2
   rahash2:
     command: bin/rahash2
+  rapatch2:
+    command: bin/rapatch2
   rarun2:
     command: bin/rarun2
   rasign2:
@@ -83,7 +87,6 @@ parts:
     stage-snaps:
       - radare2
     stage:
-      - "-meta.radare2"
       - "-share/sbom"
     override-stage: |
       craftctl default
