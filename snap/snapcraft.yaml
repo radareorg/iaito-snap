@@ -102,7 +102,7 @@ parts:
     source: https://github.com/radareorg/iaito.git
     source-type: git
     source-depth: 1
-    source-tag: '6.0.4'
+    source-tag: '6.0.8'
     parse-info:
       - src/org.radare.iaito.appdata.xml
     qmake-project-file: src/Iaito.pro
