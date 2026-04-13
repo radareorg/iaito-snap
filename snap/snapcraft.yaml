@@ -114,6 +114,7 @@ parts:
       - enable-patchelf
     build-environment:
       - PATH: "/usr/lib/qt6/bin:${PATH}"
+      - CFLAGS: "-DQT_NO_KEYWORDS"
     build-packages:
       - pkgconf
       - libgraphviz-dev
