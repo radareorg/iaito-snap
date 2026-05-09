@@ -25,12 +25,16 @@ apps:
     command: bin/iaito
     common-id: org.radare.iaito
     desktop: share/applications/org.radare.iaito.desktop
+  clang-format-radare2:
+    command: bin/clang-format-radare2
   r2:
     command: bin/r2
   r2agent:
     command: bin/r2agent
   r2frida-compile:
     command: bin/r2frida-compile
+  r2mcp:
+    command: bin/r2mcp
   r2p:
     command: bin/r2p
   r2pm:
@@ -47,6 +51,8 @@ apps:
     command: bin/radiff2
   rafind2:
     command: bin/rafind2
+  rafs2:
+    command: bin/rafs2
   ragg2:
     command: bin/ragg2
   rahash2:
