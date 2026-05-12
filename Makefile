@@ -1,7 +1,7 @@
 .PHONY: snap clean
 
 snap:
-	snapcraft -v
+	snapcraft pack -v
 
 clean:
 	snapcraft clean -v
