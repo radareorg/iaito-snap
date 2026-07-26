@@ -60,6 +60,4 @@ jobs:
         if: steps.commit.outputs.changes_detected == 'false' && steps.snap.outputs.channels == 'latest/edge*'
         env:
           SNAPCRAFT_STORE_CREDENTIALS: ${{ secrets.SNAPCRAFT_STORE_CREDENTIALS }}
-          # Workaround for https://github.com/snapcore/snapcraft/issues/4439
-          SNAPCRAFT_HAS_TTY: "true"
-        run: yes | snapcraft promote iaito --from-channel edge --to-channel stable
+        run: snapcraft promote iaito --from-channel edge --to-channel stable --yes
